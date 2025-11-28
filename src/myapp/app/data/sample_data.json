@@ -1,0 +1,38 @@
+{
+  "habits": [
+    {
+      "id": 1,
+      "name": "Trinken (2L Wasser)",
+      "description": "Ziel: 2 Liter Wasser am Tag",
+      "created_at": "2025-01-10",
+      "frequency": "daily",
+      "streak": 5
+    },
+    {
+      "id": 2,
+      "name": "Lesen",
+      "description": "Mindestens 10 Minuten lesen",
+      "created_at": "2025-01-08",
+      "frequency": "daily",
+      "streak": 2
+    },
+    {
+      "id": 3,
+      "name": "Joggen",
+      "description": "3 mal die Woche",
+      "created_at": "2025-01-01",
+      "frequency": "weekly",
+      "streak": 1
+    }
+  ],
+  "tracking": [
+    { "habit_id": 1, "date": "2025-01-20", "completed": true },
+    { "habit_id": 1, "date": "2025-01-21", "completed": true },
+    { "habit_id": 1, "date": "2025-01-22", "completed": false },
+
+    { "habit_id": 2, "date": "2025-01-21", "completed": true },
+    { "habit_id": 2, "date": "2025-01-22", "completed": true },
+
+    { "habit_id": 3, "date": "2025-01-15", "completed": true }
+  ]
+}
