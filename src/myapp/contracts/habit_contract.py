@@ -1,22 +1,33 @@
-# src/myapp/contracts/habit_contract.py
-from __future__ import annotations
-from dataclasses import dataclass, field
-from datetime import datetime
-from typing import List, Optional
-
-
-@dataclass
 class HabitContract:
     """
-    Datenmodell (Contract) für eine Gewohnheit (Habit).
-    Dieses Contract definiert ausschließlich die Datenstruktur.
-    Logik (Speichern, Serialisieren, Verhalten) gehört in den HabitManager.
+    Vertrag eines Habits.
+    Enthält nur Datenstruktur, KEINE Logik.
     """
-    id: Optional[int] = None
-    name: str = ""
-    description: str = ""
-    frequency: str = "daily"  # z. B. 'daily', 'weekly', oder ein Zahlstring
-    is_done_today: bool = False
-    created_at: Optional[datetime] = None
-    history: List[str] = field(default_factory=list)
-    
+
+    def __init__(self, name: str, description: str, frequency: str, is_done_today: bool = False):
+        self.name = name
+        self.description = description
+        self.frequency = frequency
+        self.is_done_today = is_done_today
+
+    def to_dict(self) -> dict:
+        """Nur Struktur, keine Logik."""
+        return {
+            "name": self.name,
+            "description": self.description,
+            "frequency": self.frequency,
+            "is_done_today": self.is_done_today
+        }
+
+    @staticmethod
+    def from_dict(data: dict):
+        """
+        Statische Fabrik – nur Daten übernehmen.
+        Keine Logik.
+        """
+        return HabitContract(
+            name=data.get("name", ""),
+            description=data.get("description", ""),
+            frequency=data.get("frequency", ""),
+            is_done_today=data.get("is_done_today", False)
+        )

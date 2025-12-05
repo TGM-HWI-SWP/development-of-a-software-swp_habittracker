@@ -10,6 +10,8 @@ from myapp.app.habit_tracker_gui import HabitTrackerGUI
 
 import customtkinter as ctk
 
+# Test Comment!
+
 
 def main() -> None:
     """

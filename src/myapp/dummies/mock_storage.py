@@ -1,17 +1,37 @@
-# src/myapp/dummies/mock_storage.py
-from typing import List, Dict, Any
-from myapp.contracts.storage_interface import IStorage
+from myapp.contracts.storage_interface import StorageInterface
 
+class MockStorage(StorageInterface):
+    """
+    Mock-Speicher für Tests und GUI-Dummy-Daten.
+    Keine echte Datei, sondern nur In-Memory-Dictionary.
+    """
 
-class MockStorage(IStorage):
-    """In-Memory Storage für Tests; verliert Daten beim Beenden."""
+    def __init__(self):
+        self._data = {
+            "habits": [
+                {
+                    "name": "Wasser trinken",
+                    "description": "Mindestens 2 Liter pro Tag",
+                    "frequency": "daily",
+                    "is_done_today": False
+                },
+                {
+                    "name": "Spazieren gehen",
+                    "description": "30 Minuten Gehzeit",
+                    "frequency": "daily",
+                    "is_done_today": True
+                },
+                {
+                    "name": "Lesen",
+                    "description": "Jeden Tag 10 Seiten",
+                    "frequency": "daily",
+                    "is_done_today": False
+                }
+            ]
+        }
 
-    def __init__(self, initial: List[Dict[str, Any]] | None = None):
-        self._data = initial or []
+    def load_data(self) -> dict:
+        return self._data
 
-    def load_habits(self) -> List[Dict[str, Any]]:
-        return list(self._data)
-
-    def save_habits(self, habits: List[Dict[str, Any]]) -> None:
-        # flache Kopie speichern
-        self._data = [dict(h) for h in habits]
+    def save_data(self, data: dict) -> None:
+        self._data = data
