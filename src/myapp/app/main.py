@@ -1,38 +1,30 @@
-"""
-Main entry point for the Habit Tracker application.
-Initializes storage, business logic, XP system, and the GUI.
-"""
-
-from myapp.adapters.json_storage import JSONStorage
-from myapp.business_logic.habit_manager import HabitManager
-from myapp.business_logic.xp_system import XPSystem
-from myapp.app.habit_tracker_gui import HabitTrackerGUI
-
-import customtkinter as ctk
-
-# Test Comment!
-
-
-def main() -> None:
-    """
-    Startet die Habit-Tracker-Applikation mit
-    Storage, Manager, XP-System und GUI.
-    """
-    # Storages und Systeme initialisieren
-    storage = JSONStorage()
-    xp_system = XPSystem()
-
-    # Manager für die Geschäftslogik laden
-    manager = HabitManager(storage=storage, xp_system=xp_system)
-
-    # CustomTkinter konfigurieren
-    ctk.set_appearance_mode("dark")        # dark/light/system
-    ctk.set_default_color_theme("blue")    # blue/green/dark-blue
-
-    # GUI starten
-    app = HabitTrackerGUI(manager)
-    app.mainloop()
-
-
+from myapp.dummies.mock_storage import MockStorage
+from myapp.models.habit_model import HabitModel
+from myapp.controllers.habit_controller import HabitController
+ 
+def main():
+    # Mock-Datenbank statt JSON-Datei
+    storage = MockStorage()
+ 
+    # Model + Controller initialisieren
+    model = HabitModel(storage)
+    controller = HabitController(model)
+ 
+    # --- MVP TESTAUSGABE ---
+    print("==== HABIT TRACKER MVP ====")
+    habits = controller.list_habits()
+    for h in habits:
+        status = "✅" if h["is_done_today"] else "❌"
+        print(f"{h['name']} ({h['frequency']}) - {status}")
+ 
+    print("\nMarkiere 'Wasser trinken' als erledigt...")
+    controller.finish_habit("Wasser trinken")
+ 
+    print("\nNeuer Status:")
+    habits = controller.list_habits()
+    for h in habits:
+        status = "✅" if h["is_done_today"] else "❌"
+        print(f"{h['name']} ({h['frequency']}) - {status}")
+ 
 if __name__ == "__main__":
     main()
