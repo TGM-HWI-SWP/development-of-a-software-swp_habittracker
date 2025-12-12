@@ -15,4 +15,7 @@ src/myapp/business_logic/habit_manager.py
 src/myapp/business_logic/xp_system.py
 src/myapp/contracts/habit_contract.py
 src/myapp/contracts/storage_interface.py
+src/myapp/controllers/habit_controller.py
 src/myapp/dummies/mock_storage.py
+src/myapp/gui/dummy_gui_data.py
+src/myapp/models/habit_model.py
