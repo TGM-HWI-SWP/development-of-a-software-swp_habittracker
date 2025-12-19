@@ -1,15 +1,13 @@
-from typing import List, Dict, Any
 from myapp.contracts.storage_interface import IStorage
 
 
 class MockStorage(IStorage):
     """
-    In-Memory-Speicher für MVP & Tests.
-    Simuliert eine echte Datenbank.
+    In-Memory-Storage für MVP / Prototyp.
     """
 
     def __init__(self):
-        self._habits: List[Dict[str, Any]] = [
+        self._habits = [
             {
                 "name": "Wasser trinken",
                 "description": "Mindestens 2 Liter pro Tag",
@@ -24,14 +22,14 @@ class MockStorage(IStorage):
             },
             {
                 "name": "Lesen",
-                "description": "Jeden Tag 10 Seiten",
+                "description": "10 Seiten lesen",
                 "frequency": "daily",
                 "is_done_today": False
             }
         ]
 
-    def load_habits(self) -> List[Dict[str, Any]]:
+    def load_habits(self):
         return self._habits
 
-    def save_habits(self, habits: List[Dict[str, Any]]) -> None:
+    def save_habits(self, habits):
         self._habits = habits

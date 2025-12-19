@@ -4,7 +4,7 @@ from myapp.business_logic.habit_manager import HabitManager
 from myapp.app.habit_tracker_gui import HabitTrackerGUI
 
 
-def main() -> None:
+def main():
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")
 
