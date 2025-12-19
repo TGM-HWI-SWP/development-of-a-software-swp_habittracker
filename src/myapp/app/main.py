@@ -1,30 +1,19 @@
+import customtkinter as ctk
 from myapp.dummies.mock_storage import MockStorage
-from myapp.models.habit_model import HabitModel
-from myapp.controllers.habit_controller import HabitController
- 
-def main():
-    # Mock-Datenbank statt JSON-Datei
+from myapp.business_logic.habit_manager import HabitManager
+from myapp.app.habit_tracker_gui import HabitTrackerGUI
+
+
+def main() -> None:
+    ctk.set_appearance_mode("dark")
+    ctk.set_default_color_theme("blue")
+
     storage = MockStorage()
- 
-    # Model + Controller initialisieren
-    model = HabitModel(storage)
-    controller = HabitController(model)
- 
-    # --- MVP TESTAUSGABE ---
-    print("==== HABIT TRACKER MVP ====")
-    habits = controller.list_habits()
-    for h in habits:
-        status = "✅" if h["is_done_today"] else "❌"
-        print(f"{h['name']} ({h['frequency']}) - {status}")
- 
-    print("\nMarkiere 'Wasser trinken' als erledigt...")
-    controller.finish_habit("Wasser trinken")
- 
-    print("\nNeuer Status:")
-    habits = controller.list_habits()
-    for h in habits:
-        status = "✅" if h["is_done_today"] else "❌"
-        print(f"{h['name']} ({h['frequency']}) - {status}")
- 
+    manager = HabitManager(storage)
+
+    app = HabitTrackerGUI(manager)
+    app.mainloop()
+
+
 if __name__ == "__main__":
     main()

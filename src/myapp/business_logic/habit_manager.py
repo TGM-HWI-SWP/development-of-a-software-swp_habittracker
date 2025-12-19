@@ -1,33 +1,42 @@
-from contracts.habit_contract import HabitContract
-from myapp.contracts.storage_interface import StorageInterface
+from typing import List, Dict
+from myapp.contracts.storage_interface import IStorage
+
 
 class HabitManager:
     """
-    Verantwortlich für:
-    - Habits laden
-    - Habits speichern
-    - Logik ausführen (abhaken, neu anlegen etc.)
+    Zentrale Geschäftslogik für Habits.
     """
 
-    def __init__(self, storage: StorageInterface):
-        self.storage = storage
-        self.habits = self._load()
+    def __init__(self, storage: IStorage):
+        self._storage = storage
+        self._habits = self._storage.load_habits()
 
-    def _load(self):
-        data = self.storage.load_data()
-        return [HabitContract.from_dict(h) for h in data.get("habits", [])]
+    def get_habits(self) -> List[Dict]:
+        return self._habits
 
-    def save(self):
-        data = {"habits": [h.to_dict() for h in self.habits]}
-        self.storage.save_data(data)
+    def add_habit(self, name: str, description: str, frequency: str) -> None:
+        self._habits.append({
+            "name": name,
+            "description": description,
+            "frequency": frequency,
+            "is_done_today": False
+        })
+        self._storage.save_habits(self._habits)
 
-    def add_habit(self, name, description, frequency):
-        new_habit = HabitContract(name, description, frequency)
-        self.habits.append(new_habit)
-        self.save()
+    def mark_done(self, name: str) -> None:
+        for habit in self._habits:
+            if habit["name"] == name:
+                habit["is_done_today"] = True
+        self._storage.save_habits(self._habits)
+        
+    def toggle_habit(self, name: str) -> None:
+        for habit in self._habits:
+            if habit["name"] == name:
+                habit["is_done_today"] = not habit["is_done_today"]
+        self._storage.save_habits(self._habits)
 
-    def mark_done(self, habit_name: str):
-        for h in self.habits:
-            if h.name == habit_name:
-                h.is_done_today = True
-        self.save()
+    def delete_habit(self, name: str) -> None:
+        self._habits = [
+            habit for habit in self._habits if habit["name"] != name
+        ]
+        self._storage.save_habits(self._habits)
