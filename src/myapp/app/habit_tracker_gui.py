@@ -1,156 +1,159 @@
 import customtkinter as ctk
 from tkinter import messagebox
-
-
+ 
+ 
 class HabitTrackerGUI(ctk.CTk):
-    """
-    Moderne MVP-GUI für den Habit Tracker.
-    """
-
     def __init__(self, manager):
         super().__init__()
         self.manager = manager
-
+ 
         self.title("Habit Tracker")
-        self.geometry("700x500")
+        self.geometry("800x550")
         self.resizable(False, False)
-
-        # ===== Layout =====
-        self.grid_columnconfigure(0, weight=1)
+ 
         self.grid_rowconfigure(1, weight=1)
-
+        self.grid_columnconfigure(0, weight=1)
+ 
         self._create_header()
-        self._create_habit_list()
-        self._create_footer()
-
-        self.refresh_habits()
-
-    # ---------------- HEADER ----------------
+        self._create_list()
+        self._create_xp_bar()
+        self._refresh()
+ 
+    # ---------- HEADER ----------
     def _create_header(self):
-        header = ctk.CTkFrame(self, height=60)
-        header.grid(row=0, column=0, sticky="ew", padx=10, pady=10)
-
-        title = ctk.CTkLabel(
-            header,
+        frame = ctk.CTkFrame(self, height=60)
+        frame.grid(row=0, column=0, sticky="ew", padx=10, pady=10)
+ 
+        self.title_label = ctk.CTkLabel(
+            frame,
             text="📅 Habit Tracker",
-            font=ctk.CTkFont(size=24, weight="bold")
+            font=ctk.CTkFont(size=26, weight="bold")
         )
-        title.pack(side="left", padx=20)
-
-        add_button = ctk.CTkButton(
-            header,
-            text="➕ Neues Habit",
-            command=self._open_add_habit_window
+        self.title_label.pack(side="left", padx=20)
+ 
+        add_btn = ctk.CTkButton(
+            frame,
+            text="+ Neues Habit",
+            command=self._open_add_habit
         )
-        add_button.pack(side="right", padx=20)
-
-    # ---------------- LIST ----------------
-    def _create_habit_list(self):
+        add_btn.pack(side="right", padx=20)
+ 
+    # ---------- LIST ----------
+    def _create_list(self):
         self.list_frame = ctk.CTkScrollableFrame(self)
         self.list_frame.grid(row=1, column=0, sticky="nsew", padx=10)
-
-    def refresh_habits(self):
-        for widget in self.list_frame.winfo_children():
-            widget.destroy()
-
-        habits = self.manager.get_habits()
-
-        if not habits:
-            ctk.CTkLabel(
-                self.list_frame,
-                text="Noch keine Habits vorhanden 😴"
-            ).pack(pady=20)
-            return
-
-        for habit in habits:
-            self._create_habit_card(habit)
-
-    def _create_habit_card(self, habit: dict):
-        card = ctk.CTkFrame(self.list_frame)
-        card.pack(fill="x", pady=5, padx=5)
-
-        name_label = ctk.CTkLabel(
-            card,
+ 
+    def _refresh(self):
+        for w in self.list_frame.winfo_children():
+            w.destroy()
+ 
+        for habit in self.manager.get_habits():
+            self._habit_row(habit)
+ 
+        self._update_xp_bar()
+ 
+    def _habit_row(self, habit):
+        row = ctk.CTkFrame(self.list_frame)
+        row.pack(fill="x", pady=6, padx=6)
+ 
+        # Text links
+        text_frame = ctk.CTkFrame(row, fg_color="transparent")
+        text_frame.pack(side="left", fill="x", expand=True, padx=10)
+ 
+        name = ctk.CTkLabel(
+            text_frame,
             text=habit["name"],
             font=ctk.CTkFont(size=16, weight="bold")
         )
-        name_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
-
-        desc_label = ctk.CTkLabel(
-            card,
-            text=habit["description"],
+        name.pack(anchor="w")
+ 
+        info = ctk.CTkLabel(
+            text_frame,
+            text=f'{habit["description"]} • {habit["frequency"]}',
             text_color="gray"
         )
-        desc_label.grid(row=1, column=0, sticky="w", padx=10)
-
-        status = "✅ Erledigt" if habit["is_done_today"] else "❌ Offen"
-
-        status_label = ctk.CTkLabel(card, text=status)
-        status_label.grid(row=0, column=1, padx=10)
-
-        toggle_button = ctk.CTkButton(
-            card,
-            text="✔ / ✖",
-            width=60,
-            command=lambda: self._toggle_habit(habit["name"])
+        info.pack(anchor="w")
+ 
+        # Buttons rechts
+        btn_frame = ctk.CTkFrame(row, fg_color="transparent")
+        btn_frame.pack(side="right", padx=10)
+ 
+        done_btn = ctk.CTkButton(
+            btn_frame,
+            text="✔ Erledigt",
+            width=90,
+            command=lambda: self._set_done(habit["name"], True)
         )
-        toggle_button.grid(row=0, column=2, padx=5)
-
-        delete_button = ctk.CTkButton(
-            card,
+        done_btn.pack(side="left", padx=4)
+ 
+        not_done_btn = ctk.CTkButton(
+            btn_frame,
+            text="✖ Offen",
+            width=90,
+            fg_color="#555555",
+            command=lambda: self._set_done(habit["name"], False)
+        )
+        not_done_btn.pack(side="left", padx=4)
+ 
+        delete_btn = ctk.CTkButton(
+            btn_frame,
             text="🗑",
             width=40,
-            fg_color="darkred",
-            hover_color="red",
-            command=lambda: self._delete_habit(habit["name"])
+            fg_color="#8b0000",
+            hover_color="#b22222",
+            command=lambda: self._delete(habit["name"])
         )
-        delete_button.grid(row=0, column=3, padx=5)
-
-    # ---------------- FOOTER ----------------
-    def _create_footer(self):
-        footer = ctk.CTkFrame(self, height=40)
-        footer.grid(row=2, column=0, sticky="ew", padx=10, pady=10)
-
-        refresh_btn = ctk.CTkButton(
-            footer,
-            text="🔄 Aktualisieren",
-            command=self.refresh_habits
+        delete_btn.pack(side="left", padx=4)
+ 
+    # ---------- XP ----------
+    def _create_xp_bar(self):
+        frame = ctk.CTkFrame(self, height=60)
+        frame.grid(row=2, column=0, sticky="ew", padx=10, pady=10)
+ 
+        self.level_label = ctk.CTkLabel(frame, text="Level 1")
+        self.level_label.pack()
+ 
+        self.xp_bar = ctk.CTkProgressBar(frame, width=500)
+        self.xp_bar.pack(pady=6)
+ 
+    def _update_xp_bar(self):
+        self.level_label.configure(
+            text=f"Level {self.manager.get_level()}"
         )
-        refresh_btn.pack()
-
-    # ---------------- ACTIONS ----------------
-    def _toggle_habit(self, name: str):
-        self.manager.toggle_habit(name)
-        self.refresh_habits()
-
-    def _delete_habit(self, name: str):
-        if messagebox.askyesno("Löschen", f"Habit '{name}' wirklich löschen?"):
+        self.xp_bar.set(self.manager.get_xp_progress())
+ 
+    # ---------- ACTIONS ----------
+    def _set_done(self, name, done):
+        self.manager.set_habit_done(name, done)
+        self._refresh()
+ 
+    def _delete(self, name):
+        if messagebox.askyesno("Löschen", f"{name} löschen?"):
             self.manager.delete_habit(name)
-            self.refresh_habits()
-
-    def _open_add_habit_window(self):
-        window = ctk.CTkToplevel(self)
-        window.title("Neues Habit")
-        window.geometry("400x300")
-        window.grab_set()
-
-        name_entry = ctk.CTkEntry(window, placeholder_text="Name")
-        name_entry.pack(pady=10, padx=20, fill="x")
-
-        desc_entry = ctk.CTkEntry(window, placeholder_text="Beschreibung")
-        desc_entry.pack(pady=10, padx=20, fill="x")
-
-        freq_entry = ctk.CTkEntry(window, placeholder_text="Frequenz (z.B. daily)")
-        freq_entry.pack(pady=10, padx=20, fill="x")
-
+            self._refresh()
+ 
+    def _open_add_habit(self):
+        win = ctk.CTkToplevel(self)
+        win.title("Neues Habit")
+        win.geometry("400x320")
+        win.grab_set()
+ 
+        name = ctk.CTkEntry(win, placeholder_text="Name")
+        name.pack(pady=10, padx=20, fill="x")
+ 
+        desc = ctk.CTkEntry(win, placeholder_text="Beschreibung")
+        desc.pack(pady=10, padx=20, fill="x")
+ 
+        freq = ctk.CTkEntry(win, placeholder_text="Frequenz (daily / weekly)")
+        freq.pack(pady=10, padx=20, fill="x")
+ 
         def save():
             self.manager.add_habit(
-                name_entry.get(),
-                desc_entry.get(),
-                freq_entry.get()
+                name.get(),
+                desc.get(),
+                freq.get()
             )
-            window.destroy()
-            self.refresh_habits()
-
-        save_button = ctk.CTkButton(window, text="Speichern", command=save)
-        save_button.pack(pady=20)
+            win.destroy()
+            self._refresh()
+ 
+        ctk.CTkButton(win, text="Speichern", command=save).pack(pady=20)
