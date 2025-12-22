@@ -1,6 +1,6 @@
 import customtkinter as ctk
-from myapp.dummies.mock_storage import MockStorage
 from myapp.business_logic.habit_manager import HabitManager
+from myapp.dummies.mock_storage import MockStorage
 from myapp.app.habit_tracker_gui import HabitTrackerGUI
 
 
