@@ -128,6 +128,7 @@ class HabitTrackerGUI(ctk.CTk):
         ).pack(side="left", padx=2)
 
 
+
     # ---------- ACTIONS ----------
     def save_habit(self):
         name = self.name_entry.get().strip()
