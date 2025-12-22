@@ -8,9 +8,7 @@ def main():
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")
 
-    storage = MockStorage()
-    manager = HabitManager(storage)
-
+    manager = HabitManager(MockStorage())
     app = HabitTrackerGUI(manager)
     app.mainloop()
 
