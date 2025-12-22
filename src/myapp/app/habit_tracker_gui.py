@@ -1,30 +1,29 @@
-# Importiert die Bibliothek "customtkinter"
-# Diese ist eine modernere Version von tkinter und wird für grafische Benutzeroberflächen genutzt
+# Importiert die Bibliothek customtkinter
+# Sie wird verwendet, um moderne grafische Benutzeroberflächen zu erstellen
 import customtkinter as ctk
 
 
-# Definition einer Klasse für die grafische Oberfläche des Habit Trackers
-# Die Klasse erbt von CTk, also dem Hauptfenster von customtkinter
+# Diese Klasse stellt die grafische Benutzeroberfläche (GUI) des Habit Trackers dar
+# Sie erbt von CTk, dem Hauptfenster von customtkinter
 class HabitTrackerGUI(ctk.CTk):
 
     # Konstruktor der Klasse
-    # Er wird automatisch aufgerufen, wenn ein Objekt dieser Klasse erstellt wird
-    # manager ist ein Objekt, das sich um die Daten (Habits, XP, Level etc.) kümmert
+    # manager ist ein Objekt, das die Logik und Datenverwaltung übernimmt
     def _init_(self, manager):
-        super()._init_()  # Ruft den Konstruktor der Elternklasse (CTk) auf
-        self.manager = manager  # Speichert den Manager für späteren Zugriff
-        self.editing_name = None  # Merkt sich, ob gerade ein Habit bearbeitet wird
+        super()._init_()  # Initialisiert das Hauptfenster
+        self.manager = manager  # Speichert den Manager für spätere Zugriffe
+        self.editing_name = None  # Speichert den Namen eines Habits, falls es bearbeitet wird
 
-        # Setzt den Fenstertitel
+        # Setzt den Titel des Fensters
         self.title("Habit Tracker")
 
-        # Setzt die Fenstergröße (Breite x Höhe)
+        # Legt die Größe des Fensters fest
         self.geometry("960x720")
 
-        # Verhindert, dass das Fenster in der Größe verändert werden kann
+        # Verhindert, dass der Benutzer die Fenstergröße ändert
         self.resizable(False, False)
 
-        # Konfiguriert das Grid-Layout (Spalten und Zeilen)
+        # Konfiguration des Grid-Layouts
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(3, weight=1)
 
@@ -34,17 +33,17 @@ class HabitTrackerGUI(ctk.CTk):
         self._create_list()
         self._create_xp()
 
-        # Aktualisiert die Anzeige (z. B. Liste der Habits)
+        # Aktualisiert die Anzeige beim Start
         self.refresh()
 
     # ---------- HEADER ----------
-    # Erstellt den oberen Bereich mit der Überschrift
+    # Erstellt den oberen Bereich mit dem Titel
     def _create_header(self):
-        # Erstellt einen Rahmen (Frame) für den Header
+        # Erstellt einen Rahmen für den Header
         frame = ctk.CTkFrame(self, corner_radius=16)
         frame.grid(row=0, column=0, padx=14, pady=14, sticky="ew")
 
-        # Erstellt eine Textbeschriftung mit Emoji und Titel
+        # Erstellt eine Überschrift mit Emoji
         ctk.CTkLabel(
             frame,
             text="📅 Habit Tracker",
@@ -52,7 +51,7 @@ class HabitTrackerGUI(ctk.CTk):
         ).pack(padx=20, pady=12)
 
     # ---------- FORM ----------
-    # Erstellt das Formular zum Hinzufügen oder Bearbeiten von Habits
+    # Erstellt das Formular zum Hinzufügen und Bearbeiten von Habits
     def _create_form(self):
         frame = ctk.CTkFrame(self, corner_radius=16)
         frame.grid(row=1, column=0, padx=14, pady=(0, 10), sticky="ew")
@@ -61,14 +60,14 @@ class HabitTrackerGUI(ctk.CTk):
         self.name_entry = ctk.CTkEntry(frame, placeholder_text="Habit Name")
         self.name_entry.pack(side="left", padx=8, pady=10, fill="x", expand=True)
 
-        # Wenn die Enter-Taste gedrückt wird, wird das Habit gespeichert
+        # Wenn Enter gedrückt wird, wird das Habit gespeichert
         self.name_entry.bind("<Return>", lambda e: self.save_habit())
 
         # Eingabefeld für die Beschreibung des Habits
         self.desc_entry = ctk.CTkEntry(frame, placeholder_text="Beschreibung")
         self.desc_entry.pack(side="left", padx=8, pady=10, fill="x", expand=True)
 
-        # Dropdown-Menü zur Auswahl der Häufigkeit
+        # Auswahlmenü für die Häufigkeit des Habits
         self.freq_menu = ctk.CTkOptionMenu(frame, values=["daily", "weekly", "monthly"])
         self.freq_menu.pack(side="left", padx=8)
 
@@ -81,7 +80,7 @@ class HabitTrackerGUI(ctk.CTk):
         )
         self.save_btn.pack(side="right", padx=8)
 
-        # Label für Fehlermeldungen (z. B. leerer Name)
+        # Label zur Anzeige von Fehlermeldungen
         self.error_label = ctk.CTkLabel(frame, text="", text_color="#e74c3c")
         self.error_label.pack(side="right", padx=8)
 
@@ -91,17 +90,17 @@ class HabitTrackerGUI(ctk.CTk):
         self.list_frame = ctk.CTkScrollableFrame(self, corner_radius=16)
         self.list_frame.grid(row=2, column=0, padx=16, pady=12, sticky="nsew")
 
-    # Aktualisiert die komplette Anzeige
+    # Aktualisiert die komplette Anzeige (Habits + XP)
     def refresh(self):
-        # Entfernt alle bisherigen Habit-Einträge
+        # Löscht alle aktuell angezeigten Habits
         for w in self.list_frame.winfo_children():
             w.destroy()
 
-        # Fügt alle Habits aus dem Manager neu hinzu
+        # Erstellt für jedes Habit eine neue Zeile
         for h in self.manager.get_habits():
             self._habit_row(h)
 
-        # Aktualisiert XP und Level
+        # Aktualisiert die XP-Anzeige
         self._update_xp()
 
     # Erstellt eine einzelne Zeile für ein Habit
@@ -113,21 +112,21 @@ class HabitTrackerGUI(ctk.CTk):
         left = ctk.CTkFrame(row, fg_color="transparent")
         left.pack(side="left", fill="x", expand=True, padx=10)
 
-        # Anzeigename des Habits
+        # Anzeige des Habit-Namens
         ctk.CTkLabel(
             left,
             text=h["name"],
             font=ctk.CTkFont(size=16, weight="bold")
         ).pack(anchor="w")
 
-        # Beschreibung und Frequenz
+        # Anzeige von Beschreibung und Häufigkeit
         ctk.CTkLabel(
             left,
             text=f'{h["description"]} • {h["frequency"]}',
             text_color="#aaaaaa"
         ).pack(anchor="w")
 
-        # Status: erledigt oder offen
+        # Bestimmt den Status des Habits
         status_text = "Erledigt" if h["is_done_today"] else "Offen"
         status_color = "#2ecc71" if h["is_done_today"] else "#e74c3c"
 
@@ -170,11 +169,12 @@ class HabitTrackerGUI(ctk.CTk):
     # ---------- ACTIONS ----------
     # Speichert ein neues Habit oder aktualisiert ein bestehendes
     def save_habit(self):
+        # Holt die Eingaben aus den Feldern
         name = self.name_entry.get().strip()
         desc = self.desc_entry.get().strip()
         freq = self.freq_menu.get()
 
-        # Überprüfung: Name darf nicht leer sein
+        # Prüft, ob der Name leer ist
         if name == "":
             self.error_label.configure(text="Name darf nicht leer sein")
             return
@@ -185,13 +185,14 @@ class HabitTrackerGUI(ctk.CTk):
                 self.error_label.configure(text="Habit-Limit erreicht")
                 return
             self.manager.add_habit(name, desc, freq)
+
+        # Bestehendes Habit bearbeiten
         else:
-            # Vorhandenes Habit bearbeiten
             self.manager.update_habit(self.editing_name, name, desc, freq)
             self.editing_name = None
             self.save_btn.configure(text="Hinzufügen")
 
-        # Eingabefelder zurücksetzen
+        # Setzt die Eingabefelder zurück
         self.name_entry.delete(0, "end")
         self.desc_entry.delete(0, "end")
         self.error_label.configure(text="")
@@ -201,16 +202,19 @@ class HabitTrackerGUI(ctk.CTk):
     def start_edit(self, habit):
         self.editing_name = habit["name"]
 
+        # Leert die Eingabefelder
         self.name_entry.delete(0, "end")
         self.desc_entry.delete(0, "end")
 
+        # Füllt die Felder mit den vorhandenen Daten
         self.name_entry.insert(0, habit["name"])
         self.desc_entry.insert(0, habit["description"])
         self.freq_menu.set(habit["frequency"])
 
+        # Ändert den Button-Text
         self.save_btn.configure(text="Speichern")
 
-    # Setzt den Status eines Habits (erledigt / nicht erledigt)
+    # Setzt den Status eines Habits
     def toggle(self, name, done):
         self.manager.set_habit_done(name, done)
         self.refresh()
@@ -221,20 +225,20 @@ class HabitTrackerGUI(ctk.CTk):
         self.refresh()
 
     # ---------- XP ----------
-    # Erstellt den Bereich für XP und Level
+    # Erstellt den Bereich für Level und XP
     def _create_xp(self):
         frame = ctk.CTkFrame(self, corner_radius=16)
         frame.grid(row=3, column=0, padx=14, pady=14, sticky="ew")
 
-        # Label für Level und XP
+        # Anzeige für Level und XP
         self.xp_label = ctk.CTkLabel(frame)
         self.xp_label.pack(pady=(10, 4))
 
-        # Fortschrittsbalken für XP
+        # Fortschrittsbalken für das nächste Level
         self.xp_bar = ctk.CTkProgressBar(frame, height=16)
         self.xp_bar.pack(fill="x", padx=20, pady=(0, 10))
 
-    # Aktualisiert die XP-Anzeige
+    # Aktualisiert die XP- und Level-Anzeige
     def _update_xp(self):
         self.xp_label.configure(
             text=f"Level {self.manager.get_level()} • {self.manager.get_total_xp()} XP"
